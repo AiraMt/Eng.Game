@@ -6,7 +6,7 @@ Aira McDaniel
 # Inputs and Outputs:
 - Serial Monitor
 - Neopixels
-- Microphone
+- Speaker
 - Buttons
 - Switch
 
