@@ -3,6 +3,13 @@
 # Author
 Aira McDaniel
 
+# Inputs and Outputs:
+- Serial Monitor
+- Neopixels
+- Microphone
+- Buttons
+- Switch
+
 # What is the game about?
 This game is a memorizing. A color is flashed at a certain speed depending on the level the player is on and the player cycles through the given colors to pick the correct color that was flashed. 
 
