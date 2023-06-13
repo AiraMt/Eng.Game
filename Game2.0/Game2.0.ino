@@ -1,6 +1,4 @@
 #include <Adafruit_CircuitPlayground.h>
-#include <AsyncDelay.h>
-AsyncDelay delay_4s;
 
 volatile bool Leftbutton = 0;
 volatile bool Rightbutton = 0;
@@ -17,7 +15,6 @@ int FlashcolorSay=1;
 int Limiter=1;
 int Sayer=1;
 int ScoreNum=0;
-volatile bool IntroDone= 1; 
 int Lbutton = 4;
 int Intro=1; 
 int Rbutton= 5;
@@ -66,18 +63,17 @@ attachInterrupt(digitalPinToInterrupt(switchpin),onOFF,CHANGE);
 attachInterrupt(digitalPinToInterrupt(Lbutton),Lpressed,FALLING);
 attachInterrupt(digitalPinToInterrupt(Rbutton),Rpressed,FALLING);
 generateMIDI();
-delay_4s.start(4000, AsyncDelay::MILLIS);
 
 }
 
 void loop() {
-  if(Intro==1 && delay_4s.isExpired()){
-    Serial.print("In this game you will receive a color and using the buttons and switch you will make the values of RGB to the color you are given.");
-    Serial.println(" To submit your value answers both of the buttons will be pressed at the same time.");
-    Serial.println("To see the color again, the nail will need to be tapped. If the answer is right, the board will show rainbow lights, and if it is wrong, the board will display red checked lights.");
-    Serial.println("If you answer the board wrong three times, you will start at level one.");
+  if(Intro==1){
+    Serial.print("In this game a color will flash at you and you will have to cycle through colors to find the one that flashed at you");
+    Serial.println("To start the game, tap the nail. To submit the color you that flashed at you, move the switch");
+    Serial.println("If the answer is right, the board will show rainbow lights, and if it is wrong, the board will display red checked lights.");
+    Serial.println("If you answer the board wrong you will start at level one.");
     delay(200);
-    Pleasent();
+    pleasent();
     Serial.print("Score: ");
     Serial.println(ScoreNum);
     delay(1000);
@@ -85,31 +81,28 @@ void loop() {
     {
       CircuitPlayground.playTone(midi[Start[P][0]], Start[P][1]); 
     }
-   IntroDone=0;
    CircuitPlayground.clearPixels();
    Intro=0;
   }
 
   if(switchFlag){
-    delay(5);
-    Activated=1;
     delay(200);
+    Activated=1;
     switchFlag= 0;
-  }
-  if(Rightbutton){
+  } else if(Rightbutton){
     RightbuttonPressed=1;
     delay(1000);
     Rightbutton=0;
-  }
-    if(Leftbutton){
+  } else if(Leftbutton){
     LeftbuttonPressed=1;
     delay(1000);
     Leftbutton=0;
-  }
+  } else {}
+  
   if (LeftbuttonPressed){
-    ColorChange=++Color;
+    ColorChange=++Color; //color increases, color change is being set to that color
     delay(30);
-    if(ColorChange > 6){
+    if(ColorChange > 6){ // if colorchange is greater than 6, it 
      Color=1;
      ColorChange=Color;
     }
@@ -140,134 +133,155 @@ void loop() {
     RightbuttonPressed=0;
   }
 
-  if(IntroDone==0){
+  if(Intro==0){
     if(NextLevel<3){
-    switch(NextLevel){
-      case 0:
-        if(Limiter==1){
-        if(LevelSayer==1){
-          Serial.println("Level 1:");
+      switch(NextLevel){
+        case 0:
+          if(Limiter==1){
+            if(LevelSayer==1){
+            Serial.println("Level 1:");
+          }
+          delay(30);
+          RandomColor=random(1,6);
+            if(RandomColor==1){
+              for(int Q=0;Q<10;Q++){
+                CircuitPlayground.setPixelColor(Q,181,3,243);
+              }
+            }else if(RandomColor==2){
+              for(int J=0;J<10;J++){
+                CircuitPlayground.setPixelColor(J,255,0,0);
+              }
+            }else if(RandomColor==3){
+              for(int P=0;P<10;P++){
+                CircuitPlayground.setPixelColor(P,0,255,0);
+              }
+            }else if(RandomColor==4){
+              for(int S=0;S<10;S++){
+                CircuitPlayground.setPixelColor(S,0,0,255);
+              }
+            }else if(RandomColor==5){
+              for(int F=0;F<10;F++){
+                CircuitPlayground.setPixelColor(F,242,238,0);
+              }
+            }else if(RandomColor==6){
+              for(int G=0;G<10;G++){
+                CircuitPlayground.setPixelColor(G,0,232,255);
+              }
+            }
+          delay(1000);
+          CircuitPlayground.clearPixels();
+          ColorFlashDone=1;
+          Limiter=0;
         }
-        RandomColor= random(1,6);
-        if(RandomColor==1){
-          for(int Q=0;Q<10;Q++){
-          CircuitPlayground.setPixelColor(Q,181,3,243);
-        }}else if(RandomColor==2){
-          for(int J=0;J<10;J++){
-          CircuitPlayground.setPixelColor(J,255,0,0);
-        }}else if(RandomColor==3){
-          for(int P=0;P<10;P++){
-          CircuitPlayground.setPixelColor(P,0,255,0);
-       }}elseif(RandomColor==4){
-          for(int S=0;S<10;S++){
-          CircuitPlayground.setPixelColor(S,0,0,255);
-        }}else if(RandomColor==5){
-          for(int F=0;F<10;F++){
-          CircuitPlayground.setPixelColor(F,242,238,0);
-        }}else if(RandomColor==6){
-          for(int G=0;G<10;G++){
-          CircuitPlayground.setPixelColor(G,0,232,255);
-        }}
-        delay(1000);
-        CircuitPlayground.clearPixels();
-        ColorFlashDone=1;
-        Limiter=0;
-        }
-      break;
+        break;
       case 1:
-        if(Limiter==1){
+        if(Limiter==1){ // makes it print once
         if(LevelSayer==2){
           Serial.println("Level 2:");
         }
+        delay(30);
         RandomColor=random(1,6);
         if(RandomColor==1){
           for(int Q=0;Q<10;Q++){
-          CircuitPlayground.setPixelColor(Q,181,3,243);
-      }}else if(RandomColor==2){
+            CircuitPlayground.setPixelColor(Q,181,3,243); //purple
+          }
+        }else if(RandomColor==2){
           for(int J=0;J<10;J++){
-          CircuitPlayground.setPixelColor(J,255,0,0);
-        }}else if(RandomColor==3){
+            CircuitPlayground.setPixelColor(J,255,0,0); //Red
+          }
+        }else if(RandomColor==3){
           for(int P=0;P<10;P++){
-          CircuitPlayground.setPixelColor(P,0,255,0);
-       }}else if(RandomColor==4){
+            CircuitPlayground.setPixelColor(P,0,255,0); //Green
+          }
+        }else if(RandomColor==4){
           for(int S=0;S<10;S++){
-          CircuitPlayground.setPixelColor(S,0,0,255);
-        }}else if(RandomColor==5){
+            CircuitPlayground.setPixelColor(S,0,0,255); //blue
+          }
+        }else if(RandomColor==5){
           for(int F=0;F<10;F++){
-          CircuitPlayground.setPixelColor(F,242,238,0);
-        }}else if(RandomColor==6){
+            CircuitPlayground.setPixelColor(F,242,238,0); //yellow
+          }
+        }else if(RandomColor==6){
           for(int G=0;G<10;G++){
-          CircuitPlayground.setPixelColor(G,0,232,255);
-        }}
-        delay(850);
+            CircuitPlayground.setPixelColor(G,0,232,255); //teal
+          }
+        }
+        delay(600);
         CircuitPlayground.clearPixels();
         ColorFlashDone=1;
         Limiter=0;
         }
-      break;
+        break;
       case 2:
       if(Limiter==1){
         if(LevelSayer==3){
           Serial.println("Level 3:");
         }
-        RandomColor=random(1,6);
-        if(RandomColor==1){
-          for(int Q=0;Q<10;Q++){
+        delay(30);
+      RandomColor=random(1,6);
+      if(RandomColor==1){
+        for(int Q=0;Q<10;Q++){
           CircuitPlayground.setPixelColor(Q,181,3,243);
-      }}else if(RandomColor==2){
-          for(int J=0;J<10;J++){
+        }
+      }else if(RandomColor==2){
+        for(int J=0;J<10;J++){
           CircuitPlayground.setPixelColor(J,255,0,0);
-        }}else if(RandomColor==3){
-          for(int P=0;P<10;P++){
+        }
+      }else if(RandomColor==3){
+        for(int P=0;P<10;P++){
           CircuitPlayground.setPixelColor(P,0,255,0);
-       }}else if(RandomColor==4){
-          for(int S=0;S<10;S++){
+        }
+      }else if(RandomColor==4){
+        for(int S=0;S<10;S++){
           CircuitPlayground.setPixelColor(S,0,0,255);
-        }}else if(RandomColor==5){
-          for(int F=0;F<10;F++){
+        }
+      }else if(RandomColor==5){
+        for(int F=0;F<10;F++){
           CircuitPlayground.setPixelColor(F,242,238,0);
-        }}else if(RandomColor==6){
-          for(int G=0;G<10;G++){
+        }
+      }else if(RandomColor==6){
+        for(int G=0;G<10;G++){
           CircuitPlayground.setPixelColor(G,0,232,255);
-        }}
-        delay(750);
+        }
+  }
+        delay(300);
         CircuitPlayground.clearPixels();
         ColorFlashDone=1;
         Limiter=0;
         }
       default:
-      break;
+        break;
     }
     if(ColorFlashDone){
-      
       if (FlashcolorSay==1){
         Serial.println("Now choose a color");
         delay(100);
         ColorChange=Color;
         Serial.print("Color Value: ");
         Serial.println(ColorChange);
+        delay(100);
         FlashcolorSay=0;
       }
-  if(ColorChange==1){
-   for(int Q=0;Q<10;Q++){
-    CircuitPlayground.setPixelColor(Q,181,3,243);
-  }}else if(ColorChange==2){
-    for(int J=0;J<10;J++){
-      CircuitPlayground.setPixelColor(J,255,0,0);
-    }
-  }else if(ColorChange==3){
-    for(int P=0;P<10;P++){
-      CircuitPlayground.setPixelColor(P,0,255,0);
-  }}else if(ColorChange==4){
-      for(int S=0;S<10;S++){
-        CircuitPlayground.setPixelColor(S,0,0,255);
-  }}else if(ColorChange==5){
-      for(int F=0;F<10;F++){
-        CircuitPlayground.setPixelColor(F,242,238,0);
-  }}else if(ColorChange==6){
-     for(int G=0;G<10;G++){
-        CircuitPlayground.setPixelColor(G,0,232,255);
-  }}}
+      if(ColorChange==1){
+      for(int Q=0;Q<10;Q++){
+        CircuitPlayground.setPixelColor(Q,181,3,243);
+      }}else if(ColorChange==2){
+        for(int J=0;J<10;J++){
+          CircuitPlayground.setPixelColor(J,255,0,0);
+        }
+      }else if(ColorChange==3){
+        for(int P=0;P<10;P++){
+          CircuitPlayground.setPixelColor(P,0,255,0);
+      }}else if(ColorChange==4){
+          for(int S=0;S<10;S++){
+            CircuitPlayground.setPixelColor(S,0,0,255);
+      }}else if(ColorChange==5){
+          for(int F=0;F<10;F++){
+            CircuitPlayground.setPixelColor(F,242,238,0);
+      }}else if(ColorChange==6){
+        for(int G=0;G<10;G++){
+            CircuitPlayground.setPixelColor(G,0,232,255);
+      }}}
     if(ColorChange==RandomColor && Activated==1){
       Serial.println("Correct!!");
       ScoreNum=++ScoreNum;
@@ -299,6 +313,15 @@ void loop() {
        delay(100);
        CircuitPlayground.clearPixels();
       }  
+      NextLevel=0;
+      LevelSayer=1;
+      Limiter=1;
+      ScoreNum=0;
+      Color=1;
+      FlashcolorSay=1;
+      ColorFlashDone=0;
+      Serial.print("Score: ");
+      Serial.println(ScoreNum);
       Activated=0;
     }
     }
@@ -309,12 +332,14 @@ void loop() {
        CircuitPlayground.playTone(midi[Youwon[Z][0]], Youwon[Z][1]);
        delay(50);
       }
+      exit(0); // ends the program
     }
   }
   
 }
 
-void Pleasent(){
+
+void pleasent(){
   CircuitPlayground.setPixelColor(0,239,62,91);
   CircuitPlayground.setPixelColor(1,75,37,109);
   CircuitPlayground.setPixelColor(2,63,100,126);
